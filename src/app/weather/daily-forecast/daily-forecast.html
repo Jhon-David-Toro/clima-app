@@ -1,0 +1,40 @@
+@let unit = units().temperature;
+
+<section class="panel" aria-labelledby="daily-title">
+  <h2 id="daily-title" class="panel-title">Próximos {{ rows().length }} días</h2>
+
+  <ol class="days">
+    @for (row of rows(); track row.day.date; let first = $first) {
+      <li>
+        <span class="weekday">{{
+          first ? 'Hoy' : (dateTime(row.day) | zonedTime: 'UTC' : 'weekday')
+        }}</span>
+        <app-weather-icon class="icon" [code]="row.day.weatherCode" [label]="row.label" />
+        <span class="rain">
+          @if (row.day.precipitationProbabilityMax >= minVisibleProbability) {
+            <span class="visually-hidden">Lluvia:</span> {{ row.day.precipitationProbabilityMax }} %
+          }
+        </span>
+        <span class="min"
+          ><span class="visually-hidden">Mínima</span>
+          {{ row.day.temperatureMin | temperature: unit }}</span
+        >
+        <span class="track" aria-hidden="true">
+          <span
+            class="range"
+            [style.inset-inline-start.%]="row.offset"
+            [style.inline-size.%]="row.span"
+            [style.background]="row.gradient"
+          ></span>
+          @if (first && nowOffset() !== null) {
+            <span class="now" [style.inset-inline-start.%]="nowOffset()"></span>
+          }
+        </span>
+        <span class="max"
+          ><span class="visually-hidden">Máxima</span>
+          {{ row.day.temperatureMax | temperature: unit }}</span
+        >
+      </li>
+    }
+  </ol>
+</section>

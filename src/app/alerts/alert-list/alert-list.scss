@@ -1,0 +1,88 @@
+@use 'a11y';
+
+$severity-colors: (
+  info: var(--rain),
+  warning: var(--sun),
+  danger: var(--danger),
+);
+
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-inline-start: 4px solid var(--alert-color);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--alert-color) 9%, var(--surface));
+
+  @each $severity, $color in $severity-colors {
+    &[data-severity='#{$severity}'] {
+      --alert-color: #{$color};
+    }
+  }
+}
+
+.body {
+  flex: 1;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.severity {
+  display: inline-block;
+  margin-inline-end: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--alert-color);
+  color: var(--paper);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  vertical-align: 0.15em;
+}
+
+.dismiss {
+  min-block-size: a11y.$touch-target;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.calm {
+  color: var(--ink-soft);
+}
+
+.notify {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--line);
+
+  p {
+    flex: 1 1 16rem;
+  }
+}
+
+.notify-note {
+  margin-block-start: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}

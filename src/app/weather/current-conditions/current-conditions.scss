@@ -1,0 +1,89 @@
+@use 'motion';
+@include motion.rise-keyframes;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  color: var(--sky-text);
+}
+
+h1 {
+  font-size: var(--text-xl);
+  font-stretch: 85%;
+}
+
+.region,
+.updated {
+  color: var(--sky-text-soft);
+  font-size: var(--text-sm);
+}
+
+// The advice is the headline: what to do matters more than the raw number.
+.headline {
+  max-inline-size: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-xl), 6vw, var(--text-2xl));
+  font-weight: 650;
+  font-stretch: 80%;
+  line-height: 1.08;
+  text-wrap: balance;
+  animation: rise 700ms var(--ease-out) both;
+}
+
+.now {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.temperature {
+  font-family: var(--font-display);
+  font-size: var(--text-temperature);
+  font-weight: 250;
+  font-stretch: 75%;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+}
+
+.condition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-block-end: var(--space-2);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+.icon {
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+}
+
+.facts {
+  display: flex;
+  gap: var(--space-5);
+  margin: 0;
+
+  div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  dt {
+    color: var(--sky-text-soft);
+    font-size: var(--text-sm);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+}
+
+.outing {
+  padding-inline-start: var(--space-3);
+  border-inline-start: 3px solid var(--sun);
+  font-weight: 600;
+}

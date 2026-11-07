@@ -1,0 +1,51 @@
+<div class="search" (focusout)="closeWhenFocusLeaves($event)">
+  <label class="visually-hidden" for="city-search-input">Buscar una ciudad</label>
+  <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-4-4" />
+  </svg>
+  <input
+    id="city-search-input"
+    type="search"
+    role="combobox"
+    autocomplete="off"
+    spellcheck="false"
+    placeholder="Buscar una ciudad"
+    aria-autocomplete="list"
+    [attr.aria-expanded]="showPopup()"
+    [attr.aria-controls]="listboxId"
+    [attr.aria-activedescendant]="activeOptionId()"
+    [formControl]="query"
+    (input)="openResults()"
+    (keydown.arrowdown)="moveActive(1, $event)"
+    (keydown.arrowup)="moveActive(-1, $event)"
+    (keydown.enter)="chooseActive($event)"
+    (keydown.escape)="closeResults()"
+  />
+
+  <ul class="results" role="listbox" aria-label="Ciudades" [id]="listboxId" [hidden]="!showPopup()">
+    @for (place of results(); track place.id; let index = $index) {
+      <li
+        role="option"
+        [id]="optionId(index)"
+        [attr.aria-selected]="index === activeIndex()"
+        [class.active]="index === activeIndex()"
+        (mousedown)="$event.preventDefault(); choose(place)"
+      >
+        <span class="name">{{ place.name }}</span>
+        @if (place.region) {
+          <span class="visually-hidden">, </span>
+          <span class="region">{{ place.region }}</span>
+        }
+      </li>
+    }
+  </ul>
+
+  <p
+    class="status"
+    [class.visually-hidden]="!showPopup() || results().length > 0"
+    aria-live="polite"
+  >
+    {{ statusMessage() }}
+  </p>
+</div>

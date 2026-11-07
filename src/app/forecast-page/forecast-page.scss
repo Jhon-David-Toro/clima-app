@@ -1,0 +1,222 @@
+@use 'a11y';
+@use 'breakpoints' as bp;
+@use 'motion';
+@include motion.rise-keyframes;
+@include motion.pulse-keyframes;
+
+@keyframes rain {
+  to {
+    background-position: -30px 120px;
+  }
+}
+
+.page {
+  display: grid;
+  gap: var(--space-4);
+  max-inline-size: 80rem;
+  margin-inline: auto;
+  padding: var(--space-3);
+
+  @include bp.up(md) {
+    grid-template-columns: minmax(22rem, 5fr) 7fr;
+    align-items: start;
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+}
+
+// The sky is the memorable surface: its colors come from the real conditions.
+.sky {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-block-size: min(40rem, 88dvh);
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  overflow: hidden;
+  border-radius: var(--radius-sky);
+  background: linear-gradient(170deg, var(--sky-top), var(--sky-bottom));
+  color: var(--sky-text);
+  transition: background 600ms var(--ease-out);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  [data-sky='clear'][data-daypart='day'] &::before {
+    background: radial-gradient(circle at 85% 8%, rgb(255 214 120 / 55%), transparent 45%);
+  }
+
+  [data-daypart='night'] &::before {
+    background-image:
+      radial-gradient(1.5px 1.5px at 20% 18%, rgb(255 255 255 / 70%), transparent),
+      radial-gradient(1px 1px at 62% 10%, rgb(255 255 255 / 60%), transparent),
+      radial-gradient(1.5px 1.5px at 80% 30%, rgb(255 255 255 / 50%), transparent),
+      radial-gradient(1px 1px at 38% 36%, rgb(255 255 255 / 50%), transparent);
+  }
+
+  [data-sky='rain'] &::before,
+  [data-sky='storm'] &::before {
+    background-image: repeating-linear-gradient(
+      105deg,
+      transparent 0 14px,
+      rgb(255 255 255 / 9%) 14px 15px
+    );
+    background-size: 120px 120px;
+    animation: rain 900ms linear infinite;
+  }
+
+  @include bp.up(md) {
+    position: sticky;
+    inset-block-start: var(--space-5);
+    min-block-size: calc(100dvh - var(--space-5) * 2);
+    padding: var(--space-5) var(--space-5) var(--space-6);
+  }
+}
+
+.sky-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: a11y.$touch-target;
+  block-size: a11y.$touch-target;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sky-control);
+  color: var(--sky-text);
+
+  &:hover {
+    background: var(--sky-control-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  svg {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+}
+
+.favorites,
+.sky-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.sky-actions {
+  margin-block-start: auto;
+}
+
+.chip {
+  min-block-size: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--sky-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+
+  &:hover {
+    background: var(--sky-control);
+  }
+
+  &[aria-current='location'],
+  &[aria-pressed='true'] {
+    border-color: transparent;
+    background: var(--sky-text);
+    color: var(--sky-top);
+  }
+}
+
+.sky-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-block: auto;
+
+  h1 {
+    font-size: var(--text-2xl);
+  }
+}
+
+.loading {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.offline {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--sun) 18%, var(--surface));
+  font-weight: 600;
+}
+
+.skeleton {
+  block-size: 12rem;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-2) var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+
+  p {
+    max-inline-size: 60ch;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+.toast {
+  position: fixed;
+  inset-inline: var(--space-4);
+  inset-block-end: var(--space-4);
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+
+  p {
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-pill);
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 600;
+    animation: rise 240ms var(--ease-out);
+  }
+}

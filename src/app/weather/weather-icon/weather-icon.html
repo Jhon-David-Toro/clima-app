@@ -1,0 +1,62 @@
+<svg viewBox="0 0 48 48" focusable="false">
+  @switch (condition()) {
+    @case ('clear') {
+      @if (isDay()) {
+        <g class="sun">
+          <circle cx="24" cy="24" r="9" />
+          @for (angle of [0, 45, 90, 135, 180, 225, 270, 315]; track angle) {
+            <rect
+              x="22.5"
+              y="5"
+              width="3"
+              height="7"
+              rx="1.5"
+              [attr.transform]="'rotate(' + angle + ' 24 24)'"
+            />
+          }
+        </g>
+      } @else {
+        <path class="moon" d="M30 8a16 16 0 1 0 10 25A13 13 0 0 1 30 8Z" />
+      }
+    }
+    @case ('partly-cloudy') {
+      @if (isDay()) {
+        <circle class="sun" cx="17" cy="17" r="8" />
+      } @else {
+        <path class="moon" d="M20 6a12 12 0 1 0 8 19A10 10 0 0 1 20 6Z" />
+      }
+      <path class="cloud" d="M15 40h20a8 8 0 0 0 0-16 11 11 0 0 0-21 3 6.5 6.5 0 0 0 1 13Z" />
+    }
+    @case ('fog') {
+      <path class="cloud" d="M14 28h20a7 7 0 0 0 0-14 10 10 0 0 0-19 2 6 6 0 0 0-1 12Z" />
+      <rect class="mist" x="8" y="33" width="32" height="3" rx="1.5" />
+      <rect class="mist" x="12" y="39" width="24" height="3" rx="1.5" />
+    }
+    @case ('drizzle') {
+      <path class="cloud" d="M13 30h22a8 8 0 0 0 0-16 11 11 0 0 0-21 3 6.5 6.5 0 0 0-1 13Z" />
+      <circle class="drop" cx="17" cy="37" r="2" />
+      <circle class="drop" cx="25" cy="41" r="2" />
+      <circle class="drop" cx="33" cy="37" r="2" />
+    }
+    @case ('rain') {
+      <path class="cloud" d="M13 30h22a8 8 0 0 0 0-16 11 11 0 0 0-21 3 6.5 6.5 0 0 0-1 13Z" />
+      <path class="drop" d="M17 34l-2 8M25 34l-2 8M33 34l-2 8" />
+    }
+    @case ('snow') {
+      <path class="cloud" d="M13 30h22a8 8 0 0 0 0-16 11 11 0 0 0-21 3 6.5 6.5 0 0 0-1 13Z" />
+      <circle class="flake" cx="16" cy="37" r="2.2" />
+      <circle class="flake" cx="24" cy="42" r="2.2" />
+      <circle class="flake" cx="32" cy="37" r="2.2" />
+    }
+    @case ('storm') {
+      <path
+        class="cloud storm-cloud"
+        d="M13 28h22a8 8 0 0 0 0-16 11 11 0 0 0-21 3 6.5 6.5 0 0 0-1 13Z"
+      />
+      <path class="bolt" d="M26 30l-8 10h6l-3 7 9-11h-6l3-6Z" />
+    }
+    @default {
+      <path class="cloud" d="M11 36h24a9 9 0 0 0 0-18 12 12 0 0 0-23 3 7.5 7.5 0 0 0-1 15Z" />
+    }
+  }
+</svg>

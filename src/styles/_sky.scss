@@ -1,0 +1,93 @@
+// Sky gradients per weather condition and time of day, applied by the forecast page through
+// `data-sky` and `data-daypart` attributes.
+@use 'sass:list';
+
+// condition: (day: (top, bottom), night: (top, bottom))
+$sky-palettes: (
+  'clear': (
+    'day': (
+      #2f7fe0,
+      #8cc3f4,
+    ),
+    'night': (
+      #081536,
+      #233a72,
+    ),
+  ),
+  'partly-cloudy': (
+    'day': (
+      #4f86c9,
+      #aac6e3,
+    ),
+    'night': (
+      #111f42,
+      #33456c,
+    ),
+  ),
+  'cloudy': (
+    'day': (
+      #66788f,
+      #aeb9c6,
+    ),
+    'night': (
+      #1b2538,
+      #3b4759,
+    ),
+  ),
+  'fog': (
+    'day': (
+      #8794a3,
+      #cfd6de,
+    ),
+    'night': (
+      #262f3c,
+      #4a5462,
+    ),
+  ),
+  'rain': (
+    'day': (
+      #34506f,
+      #7b8fa7,
+    ),
+    'night': (
+      #0f1a2c,
+      #2a394f,
+    ),
+  ),
+  'snow': (
+    'day': (
+      #6f8cad,
+      #c9d7e7,
+    ),
+    'night': (
+      #202d44,
+      #52617a,
+    ),
+  ),
+  'storm': (
+    'day': (
+      #2c2847,
+      #5f5a80,
+    ),
+    'night': (
+      #0f0c20,
+      #2b2645,
+    ),
+  ),
+);
+
+[data-sky] {
+  --sky-text: #fff;
+  --sky-text-soft: rgb(255 255 255 / 78%);
+  --sky-control: rgb(255 255 255 / 16%);
+  --sky-control-hover: rgb(255 255 255 / 26%);
+}
+
+@each $condition, $dayparts in $sky-palettes {
+  @each $daypart, $colors in $dayparts {
+    [data-sky='#{$condition}'][data-daypart='#{$daypart}'] {
+      --sky-top: #{list.nth($colors, 1)};
+      --sky-bottom: #{list.nth($colors, 2)};
+    }
+  }
+}

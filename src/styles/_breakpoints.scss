@@ -1,0 +1,17 @@
+// Mobile-first breakpoints. Components only use `up()`, so styles grow with the viewport.
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 40rem,
+  md: 60rem,
+);
+
+@mixin up($name) {
+  @if not map.has-key($breakpoints, $name) {
+    @error 'Breakpoint desconocido: #{$name}. Usa uno de #{map.keys($breakpoints)}.';
+  }
+
+  @media (min-width: map.get($breakpoints, $name)) {
+    @content;
+  }
+}

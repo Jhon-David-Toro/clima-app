@@ -1,0 +1,108 @@
+<!-- The backdrop click closes the dialog; Escape closes it natively. -->
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+<dialog #dialog aria-labelledby="settings-title" (click)="closeOnBackdrop($event)">
+  <div class="sheet">
+    <header>
+      <h2 id="settings-title">Ajustes</h2>
+      <button type="button" class="button" (click)="close()">Listo</button>
+    </header>
+
+    <form [formGroup]="form">
+      <fieldset>
+        <legend>Temperatura</legend>
+        <div class="segmented">
+          <label><input type="radio" formControlName="temperature" value="celsius" /> °C</label>
+          <label><input type="radio" formControlName="temperature" value="fahrenheit" /> °F</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Velocidad del viento</legend>
+        <div class="segmented">
+          <label><input type="radio" formControlName="windSpeed" value="kmh" /> km/h</label>
+          <label><input type="radio" formControlName="windSpeed" value="mph" /> mph</label>
+          <label><input type="radio" formControlName="windSpeed" value="ms" /> m/s</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Apariencia</legend>
+        <div class="segmented">
+          <label><input type="radio" formControlName="theme" value="system" /> Sistema</label>
+          <label><input type="radio" formControlName="theme" value="light" /> Claro</label>
+          <label><input type="radio" formControlName="theme" value="dark" /> Oscuro</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Notificaciones</legend>
+        @if (notificationPermission() === 'unsupported') {
+          <p class="hint">Este navegador no admite notificaciones.</p>
+        } @else if (notificationPermission() === 'denied') {
+          <p class="hint">
+            Están bloqueadas para este sitio. Permítelas en la configuración del navegador.
+          </p>
+        } @else {
+          <button
+            type="button"
+            class="button"
+            [attr.aria-pressed]="notificationsEnabled()"
+            (click)="toggleNotifications()"
+          >
+            {{ notificationsEnabled() ? 'Desactivar notificaciones' : 'Activar notificaciones' }}
+          </button>
+          @if (notificationsEnabled()) {
+            <p class="hint">
+              @if (backgroundStatus() === 'active') {
+                También se revisan en segundo plano cada pocas horas, con la app cerrada.
+              } @else {
+                Llegan mientras la app está abierta. Instálala en Chrome o Edge para recibirlas
+                también con la app cerrada.
+              }
+            </p>
+          }
+        }
+      </fieldset>
+
+      <fieldset formGroupName="enabled">
+        <legend>Alertas que quieres ver</legend>
+        <div class="checks">
+          @for (kind of alertKinds; track kind) {
+            <label
+              ><input type="checkbox" [formControlName]="kind" /> {{ alertLabels[kind] }}</label
+            >
+          }
+        </div>
+      </fieldset>
+
+      <fieldset formGroupName="thresholds">
+        <legend>Umbrales</legend>
+        <div class="thresholds">
+          @for (field of thresholdFields; track field.key) {
+            @let control = form.controls.thresholds.controls[field.key];
+            <label>
+              <span>{{ field.label }}</span>
+              <span class="input-unit">
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  [formControlName]="field.key"
+                  [min]="field.min"
+                  [max]="field.max"
+                  [attr.aria-invalid]="control.invalid"
+                  [attr.aria-describedby]="control.invalid ? 'error-' + field.key : null"
+                />
+                {{ field.unit }}
+              </span>
+            </label>
+            @if (control.invalid) {
+              <p class="error" [id]="'error-' + field.key">
+                Usa un valor entre {{ field.min }} y {{ field.max }}.
+              </p>
+            }
+          }
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</dialog>

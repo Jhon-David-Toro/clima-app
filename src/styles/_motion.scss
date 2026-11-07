@@ -1,0 +1,19 @@
+// Shared animations. Angular scopes keyframes per component, so components include the ones
+// they use instead of relying on global names.
+
+@mixin rise-keyframes {
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 0.5rem;
+    }
+  }
+}
+
+@mixin pulse-keyframes {
+  @keyframes pulse {
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
