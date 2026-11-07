@@ -1,0 +1,53 @@
+<section class="panel" aria-labelledby="hourly-title">
+  <h2 id="hourly-title" class="panel-title">Próximas 24 horas</h2>
+
+  <!-- tabindex lets keyboard users scroll the timeline. -->
+  <div class="scroller" tabindex="0" role="region" aria-labelledby="hourly-title">
+    <div class="track" [style.inline-size.px]="width()">
+      <svg
+        class="curve"
+        aria-hidden="true"
+        focusable="false"
+        [attr.viewBox]="'0 0 ' + width() + ' ' + layout.height"
+        [style.block-size.px]="layout.height"
+      >
+        <path class="line" pathLength="1" [attr.d]="path()" />
+        @for (point of points(); track $index) {
+          <circle class="dot" r="3" [attr.cx]="point.x" [attr.cy]="point.y" />
+        }
+      </svg>
+
+      <ol class="hours">
+        @for (hour of hours(); track hour.time; let first = $first) {
+          <li [style.inline-size.px]="layout.columnWidth">
+            <span class="time">{{
+              first ? 'Ahora' : (hour.time | zonedTime: timeZone() : 'hour')
+            }}</span>
+            <app-weather-icon
+              class="icon"
+              [code]="hour.weatherCode"
+              [isDay]="hour.isDay"
+              [label]="describe(hour)"
+            />
+            <span class="temperature">{{
+              hour.temperature | temperature: units().temperature
+            }}</span>
+            <span class="spacer" aria-hidden="true"></span>
+            <span
+              class="rain"
+              [class.muted]="hour.precipitationProbability < minVisibleProbability"
+            >
+              <span
+                class="bar"
+                aria-hidden="true"
+                [style.block-size.px]="hour.precipitationProbability * 0.32"
+              ></span>
+              <span class="visually-hidden">Probabilidad de lluvia:</span>
+              {{ hour.precipitationProbability }} %
+            </span>
+          </li>
+        }
+      </ol>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,14 @@
+<a class="skip-link" href="#contenido">Ir al contenido</a>
+
+<main id="contenido" tabindex="-1">
+  <router-outlet />
+</main>
+
+@if (updates.updateReady()) {
+  <div class="update" role="status">
+    <p>Hay una versión nueva de la app.</p>
+    <button type="button" class="button button-primary" (click)="updates.applyUpdate()">
+      Actualizar
+    </button>
+  </div>
+}

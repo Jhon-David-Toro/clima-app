@@ -1,0 +1,112 @@
+// Every column has the same width, so the SVG curve lines up with the list items.
+$row-gap: var(--space-1);
+$band-height: 3.5rem;
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.scroller {
+  overflow-x: auto;
+  margin-inline: calc(var(--space-5) * -1);
+  padding-inline: var(--space-5);
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+
+.track {
+  position: relative;
+}
+
+// The curve sits in the empty band between the temperature row and the rain row.
+.curve {
+  position: absolute;
+  inset-block-start: 5.5rem;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  overflow: visible;
+}
+
+.line {
+  fill: none;
+  stroke: var(--sun);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation: draw 1200ms var(--ease-out) 150ms both;
+}
+
+.dot {
+  fill: var(--surface);
+  stroke: var(--sun);
+  stroke-width: 2;
+}
+
+.hours {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $row-gap;
+    flex-shrink: 0;
+  }
+}
+
+.time {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.icon {
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+
+.temperature {
+  font-weight: 700;
+}
+
+.spacer {
+  block-size: $band-height;
+}
+
+.rain {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  block-size: $band-height;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--rain);
+
+  &.muted {
+    color: var(--ink-soft);
+    opacity: 0.6;
+  }
+}
+
+.bar {
+  inline-size: 0.5rem;
+  max-block-size: 2rem;
+  min-block-size: 2px;
+  margin-block-end: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--rain);
+
+  .muted & {
+    background: var(--line);
+  }
+}

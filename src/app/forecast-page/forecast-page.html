@@ -1,0 +1,141 @@
+@let units = settings.units();
+
+<div class="page" [attr.data-sky]="sky()" [attr.data-daypart]="daypart()">
+  <section class="sky" aria-labelledby="place-name" [attr.aria-busy]="forecastStore.isLoading()">
+    <div class="sky-bar">
+      <app-city-search (placeSelected)="selectPlace($event)" />
+      @if (canLocate) {
+        <button
+          type="button"
+          class="icon-button"
+          [disabled]="locating()"
+          (click)="useDeviceLocation()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="3.5" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+            <circle cx="12" cy="12" r="7.5" />
+          </svg>
+          <span class="visually-hidden">{{
+            locating() ? 'Buscando tu ubicación' : 'Usar mi ubicación'
+          }}</span>
+        </button>
+      }
+      <button type="button" class="icon-button" (click)="settingsPanel.open()">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+          <circle cx="16" cy="7" r="2.5" />
+          <circle cx="10" cy="17" r="2.5" />
+        </svg>
+        <span class="visually-hidden">Ajustes</span>
+      </button>
+    </div>
+
+    @if (location.favorites().length > 0) {
+      <nav class="favorites" aria-label="Lugares guardados">
+        @for (place of location.favorites(); track place.id) {
+          <button
+            type="button"
+            class="chip"
+            [attr.aria-current]="place.id === location.selected().id ? 'location' : null"
+            (click)="selectPlace(place)"
+          >
+            {{ place.name }}
+          </button>
+        }
+      </nav>
+    }
+
+    @if (forecast(); as data) {
+      <app-current-conditions
+        [place]="location.selected()"
+        [forecast]="data"
+        [today]="today()"
+        [insight]="forecastStore.insight()"
+        [units]="units"
+      />
+      <div class="sky-actions">
+        <button
+          type="button"
+          class="chip"
+          [attr.aria-pressed]="location.isSelectedFavorite()"
+          (click)="toggleFavorite()"
+        >
+          {{ location.isSelectedFavorite() ? 'Guardado' : 'Guardar lugar' }}
+        </button>
+        <button type="button" class="chip" (click)="share()">Compartir</button>
+      </div>
+    } @else if (forecastStore.error()) {
+      <div class="sky-message" role="alert">
+        <h1 id="place-name">{{ location.selected().name }}</h1>
+        <p>No se pudo cargar el pronóstico. Revisa tu conexión e inténtalo de nuevo.</p>
+        <button type="button" class="chip" (click)="retry()">Reintentar</button>
+      </div>
+    } @else {
+      <div class="sky-message">
+        <h1 id="place-name">{{ location.selected().name }}</h1>
+        <p class="loading">Cargando el pronóstico…</p>
+      </div>
+    }
+  </section>
+
+  <div class="content">
+    @if (!online()) {
+      <p class="offline" role="status">
+        Sin conexión.
+        @if (forecast(); as data) {
+          Estos son los datos de las {{ data.current.time | zonedTime: data.timeZone : 'time' }}.
+        }
+      </p>
+    }
+
+    @if (forecast(); as data) {
+      <app-alert-list />
+      <app-hourly-forecast
+        [hours]="forecastStore.next24Hours()"
+        [timeZone]="data.timeZone"
+        [units]="units"
+      />
+      <app-daily-forecast
+        [days]="forecastStore.upcomingDays()"
+        [timeZone]="data.timeZone"
+        [units]="units"
+        [currentTemperature]="data.current.temperature"
+      />
+      <app-weather-details
+        [current]="data.current"
+        [currentHour]="currentHour()"
+        [today]="today()"
+        [airQuality]="forecastStore.airQuality()"
+        [timeZone]="data.timeZone"
+        [units]="units"
+        [now]="now()"
+      />
+    } @else if (forecastStore.isLoading()) {
+      @for (placeholder of [1, 2, 3]; track placeholder) {
+        <div class="panel skeleton" aria-hidden="true"></div>
+      }
+    }
+
+    <footer class="footer">
+      <p>
+        Pronóstico de
+        <a href="https://open-meteo.com/" rel="noopener" target="_blank">Open-Meteo</a> (CC BY 4.0).
+        Las alertas se calculan a partir del pronóstico y no reemplazan los avisos oficiales.
+      </p>
+      @if (installPrompt.canInstall()) {
+        <button type="button" class="button" (click)="installPrompt.install()">
+          Instalar la app
+        </button>
+      }
+    </footer>
+  </div>
+
+  <app-settings-panel #settingsPanel />
+
+  <div class="toast" role="status" aria-live="polite">
+    @if (toast(); as message) {
+      <p>{{ message }}</p>
+    }
+  </div>
+</div>

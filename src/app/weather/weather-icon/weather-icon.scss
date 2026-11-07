@@ -1,0 +1,56 @@
+:host {
+  display: inline-block;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+
+.sun {
+  fill: var(--sun);
+}
+
+.moon {
+  fill: #f4e7b8;
+}
+
+$cloud-fill: #e9eef4;
+$cloud-edge: #9fb0c4;
+
+.cloud {
+  fill: $cloud-fill;
+  stroke: $cloud-edge;
+  stroke-width: 1.5;
+
+  &.storm-cloud {
+    fill: #8d93ab;
+    stroke: #5e6582;
+  }
+}
+
+.mist {
+  fill: $cloud-edge;
+}
+
+.drop {
+  fill: var(--rain);
+  stroke: var(--rain);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.flake {
+  fill: #fff;
+  stroke: $cloud-edge;
+  stroke-width: 1;
+}
+
+.bolt {
+  fill: var(--sun);
+}

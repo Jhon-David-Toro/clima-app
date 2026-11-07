@@ -1,0 +1,95 @@
+@let wind = units().windSpeed;
+
+<section class="details" aria-labelledby="details-title">
+  <h2 id="details-title" class="panel-title">Detalles de ahora</h2>
+
+  <div class="grid">
+    @if (sun(); as s) {
+      <article class="tile wide sun">
+        <h3>Sol</h3>
+        <svg class="arc" viewBox="0 0 200 108" aria-hidden="true" focusable="false">
+          <path class="arc-path" d="M20 100a80 80 0 0 1 160 0" />
+          <line class="horizon" x1="0" y1="100" x2="200" y2="100" />
+          @if (s.isUp) {
+            <circle class="sun-dot" r="8" [attr.cx]="s.x" [attr.cy]="s.y" />
+          }
+        </svg>
+        <dl class="sun-times">
+          <div>
+            <dt>Amanecer</dt>
+            <dd>{{ s.sunrise | zonedTime: timeZone() : 'time' }}</dd>
+          </div>
+          <div>
+            <dt>Atardecer</dt>
+            <dd>{{ s.sunset | zonedTime: timeZone() : 'time' }}</dd>
+          </div>
+        </dl>
+        <p class="note">{{ s.daylight }} de luz</p>
+      </article>
+    }
+
+    <article class="tile">
+      <h3>Viento</h3>
+      <div class="wind">
+        <svg class="compass" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <circle cx="32" cy="32" r="29" />
+          <text x="32" y="12">N</text>
+          <!-- The arrow points where the wind goes, opposite to where it comes from. -->
+          <path
+            class="needle"
+            d="M32 14l6 20h-12Z"
+            [attr.transform]="'rotate(' + (current().windDirection + 180) + ' 32 32)'"
+          />
+        </svg>
+        <p class="value">{{ current().windSpeed | windSpeed: wind }}</p>
+      </div>
+      <p class="note">
+        Del {{ windFrom() }}, ráfagas de {{ current().windGusts | windSpeed: wind }}
+      </p>
+    </article>
+
+    <article class="tile">
+      <h3>Índice UV</h3>
+      <p class="value">{{ uv().value }}</p>
+      <p class="note">{{ uv().category.label }}</p>
+      <div class="scale uv-scale" aria-hidden="true">
+        <span class="marker" [style.inset-inline-start.%]="uv().position"></span>
+      </div>
+    </article>
+
+    @if (air(); as a) {
+      <article class="tile wide">
+        <h3>Calidad del aire</h3>
+        <p class="value">{{ a.value }} <span class="unit">AQI</span></p>
+        <p class="note">{{ a.category.label }}. PM2.5 de {{ a.pm25 | number: '1.0-0' }} µg/m³.</p>
+        <div class="scale aqi-scale" aria-hidden="true">
+          <span class="marker" [style.inset-inline-start.%]="a.position"></span>
+        </div>
+      </article>
+    }
+
+    <article class="tile">
+      <h3>Humedad</h3>
+      <p class="value">{{ current().relativeHumidity }} %</p>
+      <p class="note">{{ humidityNote() }}</p>
+    </article>
+
+    <article class="tile">
+      <h3>Lluvia hoy</h3>
+      <p class="value">
+        {{ today()?.precipitationSum ?? 0 | number: '1.0-1' }} <span class="unit">mm</span>
+      </p>
+      <p class="note">Probabilidad máxima de {{ today()?.precipitationProbabilityMax ?? 0 }} %</p>
+    </article>
+
+    <article class="tile closing">
+      <h3>Visibilidad</h3>
+      <p class="value">{{ visibilityKm() | number: '1.0-1' }} <span class="unit">km</span></p>
+    </article>
+
+    <article class="tile closing">
+      <h3>Presión</h3>
+      <p class="value">{{ current().pressure | number: '1.0-0' }} <span class="unit">hPa</span></p>
+    </article>
+  </div>
+</section>

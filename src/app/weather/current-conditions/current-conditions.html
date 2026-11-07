@@ -1,0 +1,47 @@
+@let tz = forecast().timeZone;
+@let unit = units().temperature;
+
+<header class="place">
+  <h1 id="place-name">{{ place().name }}</h1>
+  @if (place().region) {
+    <p class="region">{{ place().region }}</p>
+  }
+</header>
+
+@if (insight(); as advice) {
+  <p class="headline">{{ advice.headline }}</p>
+}
+
+<div class="now">
+  <p class="temperature">
+    <span class="visually-hidden">Temperatura actual:</span>
+    {{ current().temperature | temperature: unit }}
+  </p>
+  <div class="condition">
+    <app-weather-icon class="icon" [code]="current().weatherCode" [isDay]="current().isDay" />
+    <p>{{ conditionLabel() }}</p>
+  </div>
+</div>
+
+<dl class="facts">
+  <div>
+    <dt>Sensación</dt>
+    <dd>{{ current().apparentTemperature | temperature: unit }}</dd>
+  </div>
+  @if (today(); as day) {
+    <div>
+      <dt>Máxima</dt>
+      <dd>{{ day.temperatureMax | temperature: unit }}</dd>
+    </div>
+    <div>
+      <dt>Mínima</dt>
+      <dd>{{ day.temperatureMin | temperature: unit }}</dd>
+    </div>
+  }
+</dl>
+
+@if (insight()?.outingWindow; as outing) {
+  <p class="outing">{{ outing }}</p>
+}
+
+<p class="updated">Datos de las {{ current().time | zonedTime: tz : 'time' }}, hora local</p>
