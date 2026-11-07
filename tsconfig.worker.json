@@ -1,0 +1,10 @@
+/* Type-checks the background service worker, which runs outside the Angular app. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "WebWorker"],
+    "types": [],
+    "noEmit": true
+  },
+  "include": ["src/service-worker/**/*.ts"]
+}

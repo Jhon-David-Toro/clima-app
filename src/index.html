@@ -1,13 +1,22 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>ClimaApp</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Clima</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Pronóstico por hora y a 10 días, alertas de lluvia, calor, UV y calidad del aire, con notificaciones."
+    />
+    <meta name="theme-color" content="#2f7fe0" />
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://api.open-meteo.com" crossorigin />
+  </head>
+  <body>
+    <app-root></app-root>
+    <noscript>Activa JavaScript para ver el pronóstico.</noscript>
+  </body>
 </html>
