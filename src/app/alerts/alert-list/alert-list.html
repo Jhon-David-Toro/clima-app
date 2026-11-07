@@ -1,0 +1,56 @@
+<section class="panel" aria-labelledby="alerts-title">
+  <h2 id="alerts-title" class="panel-title">Alertas</h2>
+
+  <!-- A live region announces new alerts after a refresh or a change of place. -->
+  <ul class="alerts" aria-live="polite">
+    @for (alert of alerts(); track alert.id) {
+      <li class="alert" [attr.data-severity]="alert.severity">
+        <div class="body">
+          <p class="title">
+            <span class="severity">{{ severityLabels[alert.severity] }}</span>
+            {{ alert.title }}
+          </p>
+          <p>{{ alert.message }}</p>
+        </div>
+        <button type="button" class="dismiss" (click)="dismiss(alert)">
+          Ocultar<span class="visually-hidden"> la alerta «{{ alert.title }}»</span>
+        </button>
+      </li>
+    } @empty {
+      <li class="calm">
+        @if (hiddenCount() > 0) {
+          Ocultaste las alertas de hoy.
+        } @else {
+          Sin alertas para las próximas 24 horas.
+        }
+      </li>
+    }
+  </ul>
+
+  @switch (notificationState()) {
+    @case ('available') {
+      <div class="notify">
+        <p>Recibe una notificación cuando aparezca una alerta, incluso con la app cerrada.</p>
+        <button
+          type="button"
+          class="button button-primary"
+          [disabled]="isEnabling()"
+          (click)="enableNotifications()"
+        >
+          Activar notificaciones
+        </button>
+      </div>
+    }
+    @case ('blocked') {
+      <p class="notify-note">
+        Las notificaciones están bloqueadas para este sitio. Permítelas en la configuración del
+        navegador para recibir alertas.
+      </p>
+    }
+    @case ('active') {
+      <p class="notify-note">
+        Notificaciones activadas. Puedes elegir qué alertas recibir en Ajustes.
+      </p>
+    }
+  }
+</section>
