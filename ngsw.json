@@ -1,0 +1,124 @@
+{
+  "configVersion": 1,
+  "timestamp": 1794070841864,
+  "index": "/clima-app/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/clima-app/chunk-S5WCGHUQ.js",
+        "/clima-app/chunk-Y64DF3NQ.js",
+        "/clima-app/icons/icon.svg",
+        "/clima-app/index.html",
+        "/clima-app/main-5435NR2K.js",
+        "/clima-app/manifest.webmanifest",
+        "/clima-app/styles-TGMMPOOC.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/clima-app/icons/badge-72x72.png",
+        "/clima-app/icons/icon-128x128.png",
+        "/clima-app/icons/icon-144x144.png",
+        "/clima-app/icons/icon-152x152.png",
+        "/clima-app/icons/icon-192x192.png",
+        "/clima-app/icons/icon-384x384.png",
+        "/clima-app/icons/icon-512x512.png",
+        "/clima-app/icons/icon-72x72.png",
+        "/clima-app/icons/icon-96x96.png",
+        "/clima-app/icons/maskable-512x512.png",
+        "/clima-app/media/atkinson-hyperlegible-next-latin-ext-wght-normal-2N3YVG5Z.woff2",
+        "/clima-app/media/atkinson-hyperlegible-next-latin-wght-normal-VX3WN42K.woff2",
+        "/clima-app/media/bricolage-grotesque-latin-ext-standard-normal-SNSFM52Y.woff2",
+        "/clima-app/media/bricolage-grotesque-latin-standard-normal-VFFEJAUB.woff2",
+        "/clima-app/media/bricolage-grotesque-vietnamese-standard-normal-AXNFCB3C.woff2"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "weather-api",
+      "patterns": [
+        "https:\\/\\/api\\.open-meteo\\.com\\/.*",
+        "https:\\/\\/air-quality-api\\.open-meteo\\.com\\/.*"
+      ],
+      "strategy": "freshness",
+      "maxSize": 20,
+      "maxAge": 86400000,
+      "timeoutMs": 6000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    },
+    {
+      "name": "geocoding-api",
+      "patterns": [
+        "https:\\/\\/geocoding-api\\.open-meteo\\.com\\/.*"
+      ],
+      "strategy": "performance",
+      "maxSize": 50,
+      "maxAge": 604800000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
+  "hashTable": {
+    "/clima-app/chunk-S5WCGHUQ.js": "2b87e9977452c7b67797f2139a07c44341305628",
+    "/clima-app/chunk-Y64DF3NQ.js": "291376ef86417eac204aefd6e7e02f3d5d701299",
+    "/clima-app/icons/badge-72x72.png": "c704facecee0ecfe09acc9db3749c71028e95be5",
+    "/clima-app/icons/icon-128x128.png": "1167e3e5b29d38c166ff5e0582dcbbc4b12ca253",
+    "/clima-app/icons/icon-144x144.png": "fdc110c64176463c3f8ef315385009c5971770ea",
+    "/clima-app/icons/icon-152x152.png": "c55aa4676ad8f7804859f39736284c67dcd0c77f",
+    "/clima-app/icons/icon-192x192.png": "773bd482809412ed0bb6ebee92a7d2b3d91dfc0d",
+    "/clima-app/icons/icon-384x384.png": "36e35fad0cb95bd81a6bf732f0c3964b5c4c243f",
+    "/clima-app/icons/icon-512x512.png": "6d864e062304637a9eb5054a45e6a372d264ecef",
+    "/clima-app/icons/icon-72x72.png": "9a48014bbcc187519d2b5245d8569159333ab380",
+    "/clima-app/icons/icon-96x96.png": "10b691e8bfbe167971ebd70716a20c067b2e02ce",
+    "/clima-app/icons/icon.svg": "75a9160ec40a35b239f93e815768a6ebd8ad549a",
+    "/clima-app/icons/maskable-512x512.png": "600fd54c9ae9011b413e4ad4b591465a44968150",
+    "/clima-app/index.html": "b1fd97aa3df05da050bbd35b5e4c56f582d79525",
+    "/clima-app/main-5435NR2K.js": "a705d90bb01a6d80c2d3cd5990fb3d0f90ca69cd",
+    "/clima-app/manifest.webmanifest": "038fc9999a8b3f23e809a611f5ac4b1e28ba4e7d",
+    "/clima-app/media/atkinson-hyperlegible-next-latin-ext-wght-normal-2N3YVG5Z.woff2": "6a55cfc0db418262e9512fcfb42f39732707d9b1",
+    "/clima-app/media/atkinson-hyperlegible-next-latin-wght-normal-VX3WN42K.woff2": "04327e57a28995dd763bc9960340bc3ef2240c3d",
+    "/clima-app/media/bricolage-grotesque-latin-ext-standard-normal-SNSFM52Y.woff2": "1394acf571647cd263b711e1a508b3837bbeedef",
+    "/clima-app/media/bricolage-grotesque-latin-standard-normal-VFFEJAUB.woff2": "13b4ef87603b4f804d2908d35ba873879330ef41",
+    "/clima-app/media/bricolage-grotesque-vietnamese-standard-normal-AXNFCB3C.woff2": "cb6f2f30be3d57f4c9c38b587032ba666a06b08e",
+    "/clima-app/styles-TGMMPOOC.css": "c268d493ffda8b9706b9230e5bc97b703d71d57a"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
