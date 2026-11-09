@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { GEOCODING_URL } from '../../weather/open-meteo';
-import { Place } from '../place';
+import { GEOCODING_URL } from '../../weather/api/open-meteo.constants';
+import { Place } from '../place/place.types';
 import { CitySearch } from './city-search';
 
 const RESULTS = {

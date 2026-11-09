@@ -10,7 +10,7 @@ import localeEsCo from '@angular/common/locales/es-CO';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
-import { APP_LOCALE } from './shared/time-format';
+import { APP_LOCALE } from './shared/utils/time-format.constants';
 
 registerLocaleData(localeEsCo);
 

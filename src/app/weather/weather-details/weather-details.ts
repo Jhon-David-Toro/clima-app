@@ -1,14 +1,12 @@
 import { Component, computed, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { DisplayUnits, compassPoint } from '../../shared/units';
-import { WindSpeedPipe } from '../../shared/wind-speed-pipe';
-import { ZonedTimePipe } from '../../shared/zoned-time-pipe';
-import { AirQuality, CurrentConditions, DailyPoint, HourlyPoint } from '../forecast';
-import { aqiCategory, uvCategory } from '../health-scales';
-
-/** The UV bar tops out at 11+, the start of the "extreme" category. */
-const UV_SCALE_MAX = 11;
-const AQI_SCALE_MAX = 300;
+import { compassPoint } from '../../shared/utils/units';
+import { DisplayUnits } from '../../shared/utils/units.types';
+import { WindSpeedPipe } from '../../shared/pipes/wind-speed-pipe';
+import { ZonedTimePipe } from '../../shared/pipes/zoned-time-pipe';
+import { AirQuality, CurrentConditions, DailyPoint, HourlyPoint } from '../domain/forecast';
+import { aqiCategory, uvCategory } from '../domain/health-scales';
+import { AQI_SCALE_MAX, UV_SCALE_MAX } from './weather-details.constants';
 
 @Component({
   selector: 'app-weather-details',
@@ -56,14 +54,13 @@ export class WeatherDetails {
 
   protected readonly visibilityKm = computed(() => (this.currentHour()?.visibility ?? 0) / 1000);
 
-  /** Sun position along the arc, from 0 at sunrise to 1 at sunset; `null` at night. */
+  /** Sun position along the arc from 0 at sunrise to 1 at sunset; `null` at night. */
   protected readonly sun = computed(() => {
     const day = this.today();
     if (!day) return null;
     const progress = (this.now() - day.sunrise) / (day.sunset - day.sunrise);
     const daylightMinutes = Math.round((day.sunset - day.sunrise) / 60_000);
     const isUp = progress >= 0 && progress <= 1;
-    // Point on a semicircle of radius 80 centered at (100, 100) in the SVG.
     const angle = Math.PI * (1 - Math.min(Math.max(progress, 0), 1));
     return {
       sunrise: day.sunrise,

@@ -1,15 +1,12 @@
 import { Component, computed, input } from '@angular/core';
-import { TemperaturePipe } from '../../shared/temperature-pipe';
-import { DisplayUnits } from '../../shared/units';
-import { ZonedTimePipe } from '../../shared/zoned-time-pipe';
-import { HourlyPoint } from '../forecast';
-import { describeWeatherCode } from '../weather-codes';
+import { TemperaturePipe } from '../../shared/pipes/temperature-pipe';
+import { DisplayUnits } from '../../shared/utils/units.types';
+import { ZonedTimePipe } from '../../shared/pipes/zoned-time-pipe';
+import { HourlyPoint } from '../domain/forecast';
+import { describeWeatherCode } from '../domain/weather-codes';
 import { WeatherIcon } from '../weather-icon/weather-icon';
-import { CurveLayout, curvePoints, smoothPath } from './temperature-curve';
-
-const LAYOUT: CurveLayout = { columnWidth: 64, height: 56, padding: 8 };
-/** Below this probability, showing a percentage is noise. */
-const MIN_VISIBLE_PROBABILITY = 20;
+import { curvePoints, smoothPath } from './temperature-curve';
+import { LAYOUT, MIN_VISIBLE_PROBABILITY } from './hourly-forecast.constants';
 
 @Component({
   selector: 'app-hourly-forecast',
@@ -34,6 +31,7 @@ export class HourlyForecast {
   protected readonly path = computed(() => smoothPath(this.points()));
   protected readonly width = computed(() => this.hours().length * LAYOUT.columnWidth);
 
+  /** Returns the Spanish weather description for a given hourly point. */
   protected describe(hour: HourlyPoint): string {
     return describeWeatherCode(hour.weatherCode).label;
   }

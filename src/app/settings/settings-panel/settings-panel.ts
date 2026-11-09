@@ -1,59 +1,21 @@
-import { Component, DestroyRef, ElementRef, inject, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
-  FormGroup,
   NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { AlertCenter } from '../../alerts/alert-center';
-import {
-  ALERT_KINDS,
-  ALERT_KIND_LABELS,
-  AlertKind,
-  AlertThresholds,
-} from '../../alerts/weather-alert';
-import { BackgroundAlerts } from '../../notifications/background-alerts';
-import { BrowserNotifications } from '../../notifications/browser-notifications';
-import { TemperatureUnit, WindSpeedUnit } from '../../shared/units';
-import { Theme } from '../app-settings';
-import { SettingsStore } from '../settings-store';
-
-interface SettingsFormValue {
-  readonly temperature: TemperatureUnit;
-  readonly windSpeed: WindSpeedUnit;
-  readonly theme: Theme;
-  readonly enabled: Record<AlertKind, boolean>;
-  readonly thresholds: AlertThresholds;
-}
-
-type Controls<T> = { [K in keyof T]-?: FormControl<T[K]> };
-
-type SettingsForm = FormGroup<{
-  temperature: FormControl<TemperatureUnit>;
-  windSpeed: FormControl<WindSpeedUnit>;
-  theme: FormControl<Theme>;
-  enabled: FormGroup<Controls<Record<AlertKind, boolean>>>;
-  thresholds: FormGroup<Controls<AlertThresholds>>;
-}>;
-
-interface ThresholdField {
-  readonly key: keyof AlertThresholds;
-  readonly label: string;
-  readonly unit: string;
-  readonly min: number;
-  readonly max: number;
-}
-
-const THRESHOLD_FIELDS: readonly ThresholdField[] = [
-  { key: 'rainProbability', label: 'Lluvia desde', unit: '%', min: 10, max: 100 },
-  { key: 'heat', label: 'Calor desde', unit: '°C', min: 20, max: 50 },
-  { key: 'cold', label: 'Frío desde', unit: '°C', min: -30, max: 20 },
-  { key: 'windGusts', label: 'Ráfagas desde', unit: 'km/h', min: 20, max: 150 },
-  { key: 'uvIndex', label: 'UV desde', unit: '', min: 3, max: 11 },
-  { key: 'usAqi', label: 'AQI desde', unit: '', min: 51, max: 300 },
-];
+import { ALERT_KINDS, ALERT_KIND_LABELS } from '../../alerts/domain/weather-alert.constants';
+import { AlertThresholds } from '../../alerts/domain/weather-alert.types';
+import { BackgroundAlerts } from '../../notifications/background/background-alerts';
+import { BrowserNotifications } from '../../notifications/push/browser-notifications';
+import { TemperatureUnit, WindSpeedUnit } from '../../shared/utils/units.types';
+import { Theme } from '../domain/app-settings.types';
+import { SettingsStore } from '../store/settings-store';
+import { THRESHOLD_FIELDS } from './settings-panel.constants';
+import { SettingsForm, SettingsFormValue } from './settings-panel.types';
 
 @Component({
   selector: 'app-settings-panel',
@@ -77,13 +39,12 @@ export class SettingsPanel {
   protected readonly form = this.createForm();
 
   constructor() {
-    this.form.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe(() => {
-      if (this.form.valid) {
-        this.saveForm();
-      }
+    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      if (this.form.valid) this.saveForm();
     });
   }
 
+  /** Opens the settings dialog, resetting the form to the current store state. */
   open(): void {
     this.form.reset(this.formValueFromStore(), { emitEvent: false });
     this.dialog().nativeElement.showModal();
@@ -94,9 +55,7 @@ export class SettingsPanel {
   }
 
   protected closeOnBackdrop(event: MouseEvent): void {
-    if (event.target === this.dialog().nativeElement) {
-      this.close();
-    }
+    if (event.target === this.dialog().nativeElement) this.close();
   }
 
   protected async toggleNotifications(): Promise<void> {
@@ -111,7 +70,7 @@ export class SettingsPanel {
     const { units, alerts, theme } = this.store.settings();
     const fb = this.formBuilder;
     const threshold = (key: keyof AlertThresholds): FormControl<number> => {
-      const field = THRESHOLD_FIELDS.find((f) => f.key === key);
+      const field = THRESHOLD_FIELDS.find((fieldDef) => fieldDef.key === key);
       return fb.control(alerts.thresholds[key], [
         Validators.required,
         Validators.min(field?.min ?? -Infinity),

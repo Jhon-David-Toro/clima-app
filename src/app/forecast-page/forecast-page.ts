@@ -12,26 +12,25 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { AlertList } from '../alerts/alert-list/alert-list';
 import { CitySearch } from '../location/city-search/city-search';
-import { DeviceLocation } from '../location/device-location';
-import { LocationStore } from '../location/location-store';
-import { Place, isValidCoordinates, placeFromCoordinates } from '../location/place';
+import { DeviceLocation } from '../location/place/device-location';
+import { LocationStore } from '../location/store/location-store';
+import { isValidCoordinates, placeFromCoordinates } from '../location/place/place';
+import { Place } from '../location/place/place.types';
 import { InstallPrompt } from '../pwa/install-prompt';
 import { SettingsPanel } from '../settings/settings-panel/settings-panel';
-import { SettingsStore } from '../settings/settings-store';
-import { Clock } from '../shared/clock';
-import { NetworkStatus } from '../shared/network-status';
-import { ZonedTimePipe } from '../shared/zoned-time-pipe';
-import { formatTemperature } from '../shared/units';
+import { SettingsStore } from '../settings/store/settings-store';
+import { Clock } from '../shared/services/clock';
+import { NetworkStatus } from '../shared/services/network-status';
+import { ZonedTimePipe } from '../shared/pipes/zoned-time-pipe';
+import { formatTemperature } from '../shared/utils/units';
 import { CurrentConditions } from '../weather/current-conditions/current-conditions';
 import { DailyForecast } from '../weather/daily-forecast/daily-forecast';
-import { ForecastStore } from '../weather/forecast-store';
+import { ForecastStore } from '../weather/store/forecast-store';
 import { HourlyForecast } from '../weather/hourly-forecast/hourly-forecast';
-import { SkyCondition, describeWeatherCode } from '../weather/weather-codes';
+import { describeWeatherCode } from '../weather/domain/weather-codes';
 import { WeatherDetails } from '../weather/weather-details/weather-details';
-
-type SkyPalette = Exclude<SkyCondition, 'drizzle'>;
-
-const TOAST_DURATION_MS = 4000;
+import { TOAST_DURATION_MS } from './forecast-page.constants';
+import { SkyPalette } from './forecast-page.types';
 
 @Component({
   selector: 'app-forecast-page',
@@ -49,7 +48,7 @@ const TOAST_DURATION_MS = 4000;
   styleUrl: './forecast-page.scss',
 })
 export class ForecastPage implements OnInit {
-  /** Query parameters, bound by the router, that make a forecast shareable. */
+  /** Query parameters bound by the router that make a forecast URL shareable. */
   readonly lat = input<string>();
   readonly lon = input<string>();
   readonly name = input<string>();
@@ -127,6 +126,10 @@ export class ForecastPage implements OnInit {
     this.showToast(wasFavorite ? 'Lugar quitado de guardados.' : 'Lugar guardado.');
   }
 
+  /**
+   * Shares the current page URL via the Web Share API, or copies it to the clipboard
+   * when the browser has no share sheet.
+   */
   protected async share(): Promise<void> {
     const navigator = this.window?.navigator;
     const url = this.window?.location.href;
@@ -134,7 +137,6 @@ export class ForecastPage implements OnInit {
     const text = this.pageTitle();
     const data: ShareData = { title: text, text, url };
     try {
-      // Desktop browsers without a share sheet either lack `share` or reject this data.
       if (typeof navigator.canShare === 'function' && navigator.canShare(data)) {
         await navigator.share(data);
       } else {
@@ -142,7 +144,6 @@ export class ForecastPage implements OnInit {
         this.showToast('Enlace copiado.');
       }
     } catch (error: unknown) {
-      // Closing the share sheet rejects with AbortError, which is not a failure.
       if (!(error instanceof DOMException && error.name === 'AbortError')) {
         this.showToast('No se pudo compartir. Copia la dirección de la página.');
       }
@@ -166,13 +167,13 @@ export class ForecastPage implements OnInit {
     const latitude = Number(this.lat());
     const longitude = Number(this.lon());
     const name = this.name()?.trim() ?? '';
-    if (
+    const hasCoords =
       this.lat() !== undefined &&
       this.lon() !== undefined &&
       Number.isFinite(latitude) &&
       Number.isFinite(longitude) &&
-      isValidCoordinates(latitude, longitude)
-    ) {
+      isValidCoordinates(latitude, longitude);
+    if (hasCoords) {
       this.location.select(
         placeFromCoordinates(
           latitude,

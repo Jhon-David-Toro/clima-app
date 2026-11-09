@@ -1,22 +1,13 @@
 import { Component, computed, input } from '@angular/core';
-import { TemperaturePipe } from '../../shared/temperature-pipe';
-import { DisplayUnits } from '../../shared/units';
-import { ZonedTimePipe } from '../../shared/zoned-time-pipe';
-import { DailyPoint } from '../forecast';
-import { temperatureColor } from '../temperature-color';
-import { describeWeatherCode } from '../weather-codes';
+import { TemperaturePipe } from '../../shared/pipes/temperature-pipe';
+import { DisplayUnits } from '../../shared/utils/units.types';
+import { ZonedTimePipe } from '../../shared/pipes/zoned-time-pipe';
+import { DailyPoint } from '../domain/forecast';
+import { temperatureColor } from '../domain/temperature-color';
+import { describeWeatherCode } from '../domain/weather-codes';
 import { WeatherIcon } from '../weather-icon/weather-icon';
-
-const MIN_VISIBLE_PROBABILITY = 20;
-
-interface DayRow {
-  readonly day: DailyPoint;
-  readonly label: string;
-  /** Start and width of the min–max bar, as percentages of the 10-day range. */
-  readonly offset: number;
-  readonly span: number;
-  readonly gradient: string;
-}
+import { MIN_VISIBLE_PROBABILITY } from './daily-forecast.constants';
+import { DayRow } from './daily-forecast.types';
 
 @Component({
   selector: 'app-daily-forecast',
@@ -34,8 +25,8 @@ export class DailyForecast {
 
   private readonly range = computed(() => {
     const days = this.days();
-    const min = Math.min(...days.map((d) => d.temperatureMin));
-    const max = Math.max(...days.map((d) => d.temperatureMax));
+    const min = Math.min(...days.map((day) => day.temperatureMin));
+    const max = Math.max(...days.map((day) => day.temperatureMax));
     return { min, span: max - min || 1 };
   });
 

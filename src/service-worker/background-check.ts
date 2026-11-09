@@ -3,38 +3,36 @@
  * so Angular's worker keeps handling caching and updates, and this file adds background alert
  * checks with the same rules the app uses.
  */
-import { evaluateAlerts } from '../app/alerts/alert-rules';
-import { alertNotification } from '../app/notifications/alert-notification';
+import { evaluateAlerts } from '../app/alerts/rules/alert-rules';
+import { AlertContext } from '../app/alerts/rules/alert-rules.types';
+import { alertNotification } from '../app/notifications/push/alert-notification';
 import {
   BACKGROUND_CONFIG_KEY,
-  BackgroundConfig,
   NOTIFIED_ALERTS_KEY,
   PERIODIC_SYNC_TAG,
   notifiedKey,
   parseBackgroundConfig,
   parseNotifiedAlerts,
   pruneNotified,
-} from '../app/notifications/background-config';
-import { readValue, writeValue } from '../app/shared/key-value-db';
-import { AirQuality } from '../app/weather/forecast';
-import { mapAirQuality, mapForecast } from '../app/weather/forecast-mapper';
+} from '../app/notifications/background/background-config';
+import { BackgroundConfig } from '../app/notifications/background/background-config.types';
+import { readValue, writeValue } from '../app/shared/storage/key-value-db';
+import { AirQuality } from '../app/weather/domain/forecast';
+import { mapAirQuality, mapForecast } from '../app/weather/domain/forecast-mapper';
+import { AIR_QUALITY_URL, FORECAST_URL } from '../app/weather/api/open-meteo.constants';
 import {
-  AIR_QUALITY_URL,
-  FORECAST_URL,
   airQualityParams,
   buildUrl,
   forecastParams,
   parseAirQualityResponse,
   parseForecastResponse,
-} from '../app/weather/open-meteo';
+} from '../app/weather/api/open-meteo';
 
 declare const self: ServiceWorkerGlobalScope;
 
 async function fetchJson(url: string): Promise<unknown> {
   const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${url}`);
-  }
+  if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
   const body: unknown = await response.json();
   return body;
 }
@@ -50,25 +48,21 @@ async function fetchAirQuality(config: BackgroundConfig): Promise<AirQuality | n
 
 async function checkAlerts(): Promise<void> {
   const config = await readValue(BACKGROUND_CONFIG_KEY, parseBackgroundConfig);
-  if (!config) {
-    return;
-  }
+  if (!config) return;
   const now = Date.now();
   const [raw, airQuality] = await Promise.all([
     fetchJson(buildUrl(FORECAST_URL, forecastParams(config))),
     fetchAirQuality(config),
   ]);
   const forecast = mapForecast(parseForecastResponse(raw), now);
-  const alerts = evaluateAlerts(
-    {
-      hourly: forecast.hourly,
-      airQuality,
-      timeZone: forecast.timeZone,
-      now,
-      units: config.units,
-    },
-    config.alerts,
-  );
+  const context: AlertContext = {
+    hourly: forecast.hourly,
+    airQuality,
+    timeZone: forecast.timeZone,
+    now,
+    units: config.units,
+  };
+  const alerts = evaluateAlerts(context, config.alerts);
 
   const notified = pruneNotified(await readValue(NOTIFIED_ALERTS_KEY, parseNotifiedAlerts), now);
   const fresh = alerts.filter(

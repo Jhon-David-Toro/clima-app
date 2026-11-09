@@ -1,9 +1,9 @@
 import { Component, DOCUMENT, effect, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AlertCenter } from './alerts/alert-center';
-import { BackgroundAlerts } from './notifications/background-alerts';
+import { BackgroundAlerts } from './notifications/background/background-alerts';
 import { AppUpdates } from './pwa/app-updates';
-import { SettingsStore } from './settings/settings-store';
+import { SettingsStore } from './settings/store/settings-store';
 
 @Component({
   selector: 'app-root',

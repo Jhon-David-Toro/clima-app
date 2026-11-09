@@ -1,13 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { BrowserNotifications } from '../../notifications/browser-notifications';
+import { BrowserNotifications } from '../../notifications/push/browser-notifications';
 import { AlertCenter } from '../alert-center';
-import { AlertSeverity, WeatherAlert } from '../weather-alert';
-
-const SEVERITY_LABELS: Readonly<Record<AlertSeverity, string>> = {
-  danger: 'Peligro',
-  warning: 'Precaución',
-  info: 'Aviso',
-};
+import { WeatherAlert } from '../domain/weather-alert.types';
+import { SEVERITY_LABELS } from './alert-list.constants';
 
 @Component({
   selector: 'app-alert-list',
@@ -32,6 +27,7 @@ export class AlertList {
     return this.alertCenter.canNotify() ? 'active' : 'available';
   });
 
+  /** Hides `alert` from the list for the current session. */
   protected dismiss(alert: WeatherAlert): void {
     this.alertCenter.dismiss(alert);
   }

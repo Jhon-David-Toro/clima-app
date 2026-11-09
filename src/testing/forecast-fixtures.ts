@@ -1,6 +1,6 @@
 /** Deterministic forecasts for tests, located in Bogotá (UTC-5, no daylight saving time). */
-import { DailyPoint, Forecast, HourlyPoint } from '../app/weather/forecast';
-import { ForecastResponse } from '../app/weather/open-meteo';
+import { DailyPoint, Forecast, HourlyPoint } from '../app/weather/domain/forecast';
+import { ForecastResponse } from '../app/weather/api/open-meteo.types';
 
 export const TIME_ZONE = 'America/Bogota';
 export const HOUR_MS = 60 * 60 * 1000;
@@ -127,16 +127,16 @@ export function buildForecastResponse(): ForecastResponse {
       is_day: series('isDay', flag),
     },
     daily: {
-      time: forecast.daily.map((_, day) => seconds(localTime(day, 0))),
-      weather_code: forecast.daily.map((d) => d.weatherCode),
-      temperature_2m_max: forecast.daily.map((d) => d.temperatureMax),
-      temperature_2m_min: forecast.daily.map((d) => d.temperatureMin),
-      sunrise: forecast.daily.map((d) => seconds(d.sunrise)),
-      sunset: forecast.daily.map((d) => seconds(d.sunset)),
-      uv_index_max: forecast.daily.map((d) => d.uvIndexMax),
-      precipitation_sum: forecast.daily.map((d) => d.precipitationSum),
-      precipitation_probability_max: forecast.daily.map((d) => d.precipitationProbabilityMax),
-      wind_gusts_10m_max: forecast.daily.map((d) => d.windGustsMax),
+      time: forecast.daily.map((_, dayIndex) => seconds(localTime(dayIndex, 0))),
+      weather_code: forecast.daily.map((day) => day.weatherCode),
+      temperature_2m_max: forecast.daily.map((day) => day.temperatureMax),
+      temperature_2m_min: forecast.daily.map((day) => day.temperatureMin),
+      sunrise: forecast.daily.map((day) => seconds(day.sunrise)),
+      sunset: forecast.daily.map((day) => seconds(day.sunset)),
+      uv_index_max: forecast.daily.map((day) => day.uvIndexMax),
+      precipitation_sum: forecast.daily.map((day) => day.precipitationSum),
+      precipitation_probability_max: forecast.daily.map((day) => day.precipitationProbabilityMax),
+      wind_gusts_10m_max: forecast.daily.map((day) => day.windGustsMax),
     },
   };
 }

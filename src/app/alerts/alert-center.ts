@@ -1,20 +1,22 @@
 import { Service, computed, effect, inject, signal } from '@angular/core';
-import { LocationStore } from '../location/location-store';
-import { alertNotification } from '../notifications/alert-notification';
+import { LocationStore } from '../location/store/location-store';
+import { alertNotification } from '../notifications/push/alert-notification';
 import {
   NOTIFIED_ALERTS_KEY,
   notifiedKey,
   parseNotifiedAlerts,
   pruneNotified,
-} from '../notifications/background-config';
-import { BrowserNotifications } from '../notifications/browser-notifications';
-import { SettingsStore } from '../settings/settings-store';
-import { Clock } from '../shared/clock';
-import { readValue, writeValue } from '../shared/key-value-db';
-import { ForecastStore } from '../weather/forecast-store';
-import { evaluateAlerts } from './alert-rules';
-import { WeatherAlert } from './weather-alert';
+} from '../notifications/background/background-config';
+import { BrowserNotifications } from '../notifications/push/browser-notifications';
+import { SettingsStore } from '../settings/store/settings-store';
+import { Clock } from '../shared/services/clock';
+import { readValue, writeValue } from '../shared/storage/key-value-db';
+import { ForecastStore } from '../weather/store/forecast-store';
+import { evaluateAlerts } from './rules/alert-rules';
+import { AlertContext } from './rules/alert-rules.types';
+import { WeatherAlert } from './domain/weather-alert.types';
 
+/** Evaluates alert rules against the live forecast and manages in-app + push notifications. */
 @Service()
 export class AlertCenter {
   private readonly forecastStore = inject(ForecastStore);
@@ -24,26 +26,26 @@ export class AlertCenter {
   private readonly notifications = inject(BrowserNotifications);
   private readonly dismissedIds = signal<ReadonlySet<string>>(new Set());
 
-  /** Every alert for the selected place, including the ones the person dismissed. */
+  /** Every alert for the selected place, including dismissed ones. */
   readonly alerts = computed<readonly WeatherAlert[]>(() => {
     const forecast = this.forecastStore.forecast();
     if (!forecast) return [];
-    return evaluateAlerts(
-      {
-        hourly: forecast.hourly,
-        airQuality: this.forecastStore.airQuality(),
-        timeZone: forecast.timeZone,
-        now: this.clock.now(),
-        units: this.settings.units(),
-      },
-      this.settings.alerts(),
-    );
+    const context: AlertContext = {
+      hourly: forecast.hourly,
+      airQuality: this.forecastStore.airQuality(),
+      timeZone: forecast.timeZone,
+      now: this.clock.now(),
+      units: this.settings.units(),
+    };
+    return evaluateAlerts(context, this.settings.alerts());
   });
 
+  /** Alerts the person has not dismissed in the current session. */
   readonly visibleAlerts = computed(() =>
     this.alerts().filter((alert) => !this.dismissedIds().has(alert.id)),
   );
 
+  /** `true` when the person has opted in AND the browser has granted notification permission. */
   readonly canNotify = computed(
     () => this.settings.notifications() && this.notifications.permission() === 'granted',
   );
@@ -57,11 +59,15 @@ export class AlertCenter {
     });
   }
 
+  /** Hides `alert` from the visible list for the current session. */
   dismiss(alert: WeatherAlert): void {
     this.dismissedIds.update((ids) => new Set(ids).add(alert.id));
   }
 
-  /** Turns notifications on, asking for permission first. Returns whether they are active. */
+  /**
+   * Turns notifications on, requesting browser permission when needed.
+   * Returns `true` when notifications are now active.
+   */
   async enableNotifications(): Promise<boolean> {
     const permission =
       this.notifications.permission() === 'granted'
@@ -72,6 +78,7 @@ export class AlertCenter {
     return granted;
   }
 
+  /** Turns notifications off without revoking browser permission. */
   disableNotifications(): void {
     this.settings.setNotifications(false);
   }
@@ -91,8 +98,7 @@ export class AlertCenter {
         await this.notifications.show(alertNotification(alert, placeName));
       }
       const marked = fresh.map((alert) => [notifiedKey(placeName, alert.id), now] as const);
-      const updated = { ...notified, ...Object.fromEntries(marked) };
-      await writeValue(NOTIFIED_ALERTS_KEY, updated);
+      await writeValue(NOTIFIED_ALERTS_KEY, { ...notified, ...Object.fromEntries(marked) });
     } catch {
       // Notifications are best effort; alerts remain visible inside the app.
     }

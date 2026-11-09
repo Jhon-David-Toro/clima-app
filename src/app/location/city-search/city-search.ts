@@ -1,18 +1,14 @@
-import { Component, computed, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { httpResource } from '@angular/common/http';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs';
-import { GEOCODING_URL, geocodingParams, parseGeocodingResponse } from '../../weather/open-meteo';
-import { Place, placeFromGeocoding } from '../place';
-
-const MIN_QUERY_LENGTH = 2;
-const DEBOUNCE_MS = 300;
-
 /** City search following the WAI-ARIA combobox pattern with a listbox popup. */
+import { Component, DestroyRef, computed, inject, output, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { geocodingParams, parseGeocodingResponse } from '../../weather/api/open-meteo';
+import { GEOCODING_URL } from '../../weather/api/open-meteo.constants';
+import { placeFromGeocoding } from '../place/place';
+import { Place } from '../place/place.types';
+import { DEBOUNCE_MS, MIN_QUERY_LENGTH } from './city-search.constants';
+
 @Component({
   selector: 'app-city-search',
-  imports: [ReactiveFormsModule],
   templateUrl: './city-search.html',
   styleUrl: './city-search.scss',
 })
@@ -20,18 +16,17 @@ export class CitySearch {
   readonly placeSelected = output<Place>();
 
   protected readonly listboxId = 'city-search-results';
-  protected readonly query = new FormControl('', { nonNullable: true });
+
+  /** Raw value bound to the `<input>` element. */
+  protected readonly rawQuery = signal('');
   protected readonly isOpen = signal(false);
   protected readonly activeIndex = signal(-1);
 
-  private readonly debouncedQuery = toSignal(
-    this.query.valueChanges.pipe(
-      map((value) => value.trim()),
-      debounceTime(DEBOUNCE_MS),
-      distinctUntilChanged(),
-    ),
-    { initialValue: '' },
-  );
+  private readonly debouncedQueryState = signal('');
+  private debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Debounced, trimmed version of the input that drives the HTTP resource. */
+  private readonly debouncedQuery = this.debouncedQueryState.asReadonly();
 
   private readonly searchResource = httpResource(
     () => {
@@ -50,7 +45,6 @@ export class CitySearch {
   protected readonly hasError = computed(() => this.searchResource.error() !== undefined);
   protected readonly hasQuery = computed(() => this.debouncedQuery().length >= MIN_QUERY_LENGTH);
   protected readonly showPopup = computed(() => this.isOpen() && this.hasQuery());
-
   protected readonly activeOptionId = computed(() =>
     this.showPopup() && this.activeIndex() >= 0 ? this.optionId(this.activeIndex()) : null,
   );
@@ -64,13 +58,29 @@ export class CitySearch {
     return count === 1 ? '1 ciudad encontrada.' : `${count} ciudades encontradas.`;
   });
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      clearTimeout(this.debounceTimer);
+    });
+  }
+
   protected optionId(index: number): string {
     return `${this.listboxId}-${index}`;
   }
 
-  protected openResults(): void {
+  /**
+   * Handles every keystroke: updates the raw display value immediately
+   * and schedules a debounced update that fires the search.
+   */
+  protected onInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.rawQuery.set(value);
     this.isOpen.set(true);
     this.activeIndex.set(-1);
+    clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => {
+      this.debouncedQueryState.set(value.trim());
+    }, DEBOUNCE_MS);
   }
 
   protected closeResults(): void {
@@ -96,7 +106,9 @@ export class CitySearch {
 
   protected choose(place: Place): void {
     this.placeSelected.emit(place);
-    this.query.setValue('');
+    this.rawQuery.set('');
+    this.debouncedQueryState.set('');
+    clearTimeout(this.debounceTimer);
     this.closeResults();
   }
 

@@ -1,11 +1,11 @@
 import { Component, computed, input } from '@angular/core';
-import { Place } from '../../location/place';
-import { TemperaturePipe } from '../../shared/temperature-pipe';
-import { DisplayUnits } from '../../shared/units';
-import { ZonedTimePipe } from '../../shared/zoned-time-pipe';
-import { DailyPoint, Forecast } from '../forecast';
-import { ForecastInsight } from '../forecast-insights';
-import { describeWeatherCode } from '../weather-codes';
+import { Place } from '../../location/place/place.types';
+import { TemperaturePipe } from '../../shared/pipes/temperature-pipe';
+import { DisplayUnits } from '../../shared/utils/units.types';
+import { ZonedTimePipe } from '../../shared/pipes/zoned-time-pipe';
+import { DailyPoint, Forecast } from '../domain/forecast';
+import { ForecastInsight } from '../domain/forecast-insights.types';
+import { describeWeatherCode } from '../domain/weather-codes';
 import { WeatherIcon } from '../weather-icon/weather-icon';
 
 @Component({

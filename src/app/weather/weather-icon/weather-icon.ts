@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { describeWeatherCode } from '../weather-codes';
+import { describeWeatherCode } from '../domain/weather-codes';
 
 /** Weather pictogram drawn with SVG, so it scales and follows the theme colors. */
 @Component({

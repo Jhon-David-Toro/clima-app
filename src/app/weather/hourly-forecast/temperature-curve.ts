@@ -1,17 +1,10 @@
 /** Geometry for the hourly temperature curve, kept apart from the component to test it. */
+import { CurveLayout, CurvePoint } from './temperature-curve.types';
 
-export interface CurvePoint {
-  readonly x: number;
-  readonly y: number;
-}
-
-export interface CurveLayout {
-  readonly columnWidth: number;
-  readonly height: number;
-  /** Vertical breathing room so the stroke is never clipped. */
-  readonly padding: number;
-}
-
+/**
+ * Converts an array of temperature values into SVG (x, y) coordinates.
+ * Y is inverted so higher temperatures appear at the top of the chart.
+ */
 export function curvePoints(values: readonly number[], layout: CurveLayout): CurvePoint[] {
   if (values.length === 0) return [];
   const min = Math.min(...values);
@@ -24,22 +17,26 @@ export function curvePoints(values: readonly number[], layout: CurveLayout): Cur
   }));
 }
 
-/** Smooth SVG path through every point, using Catmull-Rom splines converted to Béziers. */
+/**
+ * Builds a smooth SVG path through every point using Catmull-Rom splines converted to Béziers.
+ * Returns an empty string when `points` is empty.
+ */
 export function smoothPath(points: readonly CurvePoint[]): string {
   const [first] = points;
   if (!first) return '';
   let path = `M${first.x.toFixed(1)},${first.y.toFixed(1)}`;
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1] ?? points[i];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2] ?? p2;
-    if (!p0 || !p1 || !p2 || !p3) continue;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    path += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+    // Catmull-Rom uses four points to derive two Bézier control points for the segment [segStart → segEnd].
+    const beforeStart = points[i - 1] ?? points[i]; // clamped at the first point
+    const segStart = points[i];
+    const segEnd = points[i + 1];
+    const afterEnd = points[i + 2] ?? segEnd; // clamped at the last point
+    if (!beforeStart || !segStart || !segEnd || !afterEnd) continue;
+    const ctrl1X = segStart.x + (segEnd.x - beforeStart.x) / 6;
+    const ctrl1Y = segStart.y + (segEnd.y - beforeStart.y) / 6;
+    const ctrl2X = segEnd.x - (afterEnd.x - segStart.x) / 6;
+    const ctrl2Y = segEnd.y - (afterEnd.y - segStart.y) / 6;
+    path += ` C${ctrl1X.toFixed(1)},${ctrl1Y.toFixed(1)} ${ctrl2X.toFixed(1)},${ctrl2Y.toFixed(1)} ${segEnd.x.toFixed(1)},${segEnd.y.toFixed(1)}`;
   }
   return path;
 }
